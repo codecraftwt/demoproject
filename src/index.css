@@ -1,0 +1,150 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.dashboard-container .card {
+  width: 200px;
+  height: 200px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.dashboard-container .card .card-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.dashboard-container .card .card-content-statistic {
+  flex-direction: column;
+}
+
+.dashboard-container .card .title {
+  text-align: center;
+  font-size: 32px;
+}
+
+.dashboard-container .card .title-statistic {
+  text-align: center;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.dashboard-container .card .statistic {
+  text-align: center;
+  font-size: 58px;
+}
+
+.formfield {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.field-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.field-container .sub-field-container {
+  margin-top: 10px;
+}
+
+.field-container .button-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-list {
+  padding: 5px 0;
+  list-style-type: none;
+  height: auto;
+  max-height: 100%;
+  margin: 0px;
+  overflow: auto;
+  width: 100%;
+}
+
+.error {
+  color: red;
+}
+
+.button-section > button {
+  margin: 10px !important;
+}
+
+.MuiStack-root {
+  padding-bottom: 40px !important;
+}
+
+.css-1nihngp-MuiDataGrid-root {
+  min-height: 350px;
+}
+
+.css-4nclx1-MuiFormLabel-root-MuiInputLabel-root {
+  white-space: unset !important;
+  overflow: unset !important;
+  text-overflow: unset !important;
+  word-break: break-word;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  overflow-x: auto;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 5px;
+  background-color: transparent;
+  overflow-x: auto;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: lightgray;
+  overflow-x: auto;
+}
+
+.MuiPopover-root {
+  z-index: 2147483003 !important;
+}
+
+
+
+.pac-container {
+  z-index: 9999 !important;
+}
+
+.base-Popper-root  {
+  z-index: 999999999 !important;
+}
+
+.slick-slider{
+  display: flex !important;
+  align-items: center !important;
+}.css-ogkj82-MuiTableBody-root td{ 
+  white-space: unset !important;
+ } 
+ .css-1sbykev-MuiTableCell-root {
+  padding: 6px 16px !important;
+ }

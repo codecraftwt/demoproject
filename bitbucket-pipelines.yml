@@ -1,0 +1,130 @@
+image: node:16
+
+# Workflow Configuration
+options:
+  size: 2x
+
+pipelines:
+  branches:
+    master:
+      - step:
+          size: 4x
+          name: Build
+          deployment: Master-build
+          caches:
+            - node
+          script:
+            - echo REACT_APP_AUTH0_DOMAIN=$REACT_APP_AUTH0_DOMAIN > .env
+            - echo REACT_APP_AUTH0_CLIENT_ID=$REACT_APP_AUTH0_CLIENT_ID >> .env
+            - echo REACT_APP_API_URL=$REACT_APP_API_URL >> .env
+            - echo REACT_APP_X_DATA_GRID_PRO=$REACT_APP_X_DATA_GRID_PRO >> .env
+            - echo REACT_APP_SENTRYIO_DSN=$REACT_APP_SENTRYIO_DSN >> .env
+            - echo REACT_APP_SENTRYIO_TRACES_SAMPLE_RATE=$REACT_APP_SENTRYIO_TRACES_SAMPLE_RATE >> .env
+            - echo REACT_APP_SENTRYIO_ATTACH_Stacktrace=$REACT_APP_SENTRYIO_ATTACH_Stacktrace >> .env
+            - echo REACT_APP_SENTRYIO_DEBUG=$REACT_APP_SENTRYIO_DEBUG >> .env
+            - echo REACT_APP_GOOGLE_MAPS_API_KEY=$REACT_APP_GOOGLE_MAPS_API_KEY >> .env
+            - echo REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT >> .env
+            - echo REACT_APP_WEB_URL=$REACT_APP_WEB_URL >> .env
+            - echo REACT_APP_AWS_REGION=$REACT_APP_AWS_REGION >> .env
+            - echo REACT_APP_AWS_SECRET_ACCESS_KEY_ID=$REACT_APP_AWS_SECRET_ACCESS_KEY_ID >> .env
+            - echo REACT_APP_AWS_SECRET_ACCESS_KEY=$REACT_APP_AWS_SECRET_ACCESS_KEY >> .env
+            - echo REACT_APP_AWS_REKOGNITIONACCESS_KEY_ID=$REACT_APP_AWS_REKOGNITIONACCESS_KEY_ID >> .env
+            - echo REACT_APP_AWS_REKOGNITION_STREAM=$REACT_APP_AWS_REKOGNITION_STREAM >> .env
+            - echo NODE_ENV=$NODE_ENV >> .env
+            - source .env
+            - unset CI
+            - npm install
+            - export NODE_OPTIONS=--max-old-space-size=8192
+            #- npm audit fix --force
+            - npm run build
+            - echo $BITBUCKET_BUILD_NUMBER:$BITBUCKET_BRANCH > build/.buildit.txt
+          after-script:
+            - if [[ $BITBUCKET_EXIT_CODE -ne 0 ]]; then exit 0; else echo "Build successful!"; fi
+            - pipe: atlassian/email-notify:0.11.0
+              variables:
+                USERNAME: $EMAIL_USER
+                PASSWORD: $EMAIL_PASS
+                FROM: $FROM
+                TO: 'dancornish@gmail.com'
+                HOST: 'email-smtp.us-east-1.amazonaws.com'
+                SUBJECT: 'Success:Bitbucket Pipe Notification for ${BITBUCKET_BRANCH}'
+                BODY_PLAIN: 'Build successful for ${BITBUCKET_COMMIT}'
+          artifacts:
+            - build/**
+
+      - step:
+          name: Deploy to Master
+          deployment: Master
+          clone:
+            enabled: false
+          script:
+            # sync your files to S3
+            - pipe: atlassian/aws-s3-deploy:1.1.0
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+                S3_BUCKET: $AWS_S3_BUCKET
+                LOCAL_PATH: 'build'
+            # triggering a distribution invalidation to refresh the CDN caches
+            - pipe: atlassian/aws-cloudfront-invalidate:0.6.0
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+                DISTRIBUTION_ID: $DISTRIBUTION_ID
+
+    development:
+      - step:
+          size: 4x
+          name: Build
+          deployment: Development-build
+          caches:
+            - node
+          script:
+            - echo REACT_APP_AUTH0_DOMAIN=$REACT_APP_AUTH0_DOMAIN > .env
+            - echo REACT_APP_AUTH0_CLIENT_ID=$REACT_APP_AUTH0_CLIENT_ID >> .env
+            - echo REACT_APP_API_URL=$REACT_APP_API_URL >> .env
+            - echo REACT_APP_X_DATA_GRID_PRO=$REACT_APP_X_DATA_GRID_PRO >> .env
+            - echo REACT_APP_SENTRYIO_DSN=$REACT_APP_SENTRYIO_DSN >> .env
+            - echo REACT_APP_SENTRYIO_TRACES_SAMPLE_RATE=$REACT_APP_SENTRYIO_TRACES_SAMPLE_RATE >> .env
+            - echo REACT_APP_SENTRYIO_ATTACH_Stacktrace=$REACT_APP_SENTRYIO_ATTACH_Stacktrace >> .env
+            - echo REACT_APP_SENTRYIO_DEBUG=$REACT_APP_SENTRYIO_DEBUG >> .env
+            - echo REACT_APP_GOOGLE_MAPS_API_KEY=$REACT_APP_GOOGLE_MAPS_API_KEY >> .env
+            - echo REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT >> .env
+            - echo REACT_APP_AWS_REGION=$REACT_APP_AWS_REGION >> .env
+            - echo REACT_APP_AWS_SECRET_ACCESS_KEY_ID=$REACT_APP_AWS_SECRET_ACCESS_KEY_ID >> .env
+            - echo REACT_APP_AWS_SECRET_ACCESS_KEY=$REACT_APP_AWS_SECRET_ACCESS_KEY >> .env
+            - echo REACT_APP_AWS_REKOGNITIONACCESS_KEY_ID=$REACT_APP_AWS_REKOGNITIONACCESS_KEY_ID >> .env
+            - echo REACT_APP_AWS_REKOGNITION_STREAM=$REACT_APP_AWS_REKOGNITION_STREAM >> .env
+            - echo NODE_ENV=$NODE_ENV >> .env
+            - source .env
+            - unset CI
+            - npm install
+            - export NODE_OPTIONS=--max-old-space-size=8192
+            - npm run build
+            - echo $BITBUCKET_BUILD_NUMBER:$BITBUCKET_BRANCH > build/.buildit.txt
+          artifacts:
+            - build/**
+
+      - step:
+          name: Deploy to Development
+          deployment: Development
+          clone:
+            enabled: false
+          script:
+            # sync your files to S3
+            - pipe: atlassian/aws-s3-deploy:1.1.0
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+                S3_BUCKET: $AWS_S3_BUCKET
+                LOCAL_PATH: 'build'
+            # triggering a distribution invalidation to refresh the CDN caches
+            - pipe: atlassian/aws-cloudfront-invalidate:0.6.0
+              variables:
+                AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+                AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+                AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+                DISTRIBUTION_ID: $DISTRIBUTION_ID

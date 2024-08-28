@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  client:
+    stdin_open: true
+    #image: cohesionlabs/veritimepwa:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3003:3003
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - .env
+    container_name: veritimepwa
+    #image: cohesionlabs/veritimepwa:latest
+
+volumes:
+  vt-app:

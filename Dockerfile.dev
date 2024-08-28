@@ -1,0 +1,13 @@
+
+FROM node:16
+
+# use local .env file for environment variables.
+
+WORKDIR /usr/src/app
+COPY ["package.json", "package-lock.json*", "./"]
+RUN npm install
+COPY . .
+
+EXPOSE 3003
+RUN npm run build
+CMD ["npm", "start"]
